@@ -32,12 +32,12 @@ The Carbon Credit Calculator is designed to provide accurate predictions for car
 
 1. Clone the repository:
    ```
-   git clone https://github.com/your-username/carbon-credit-calculator.git
+   git clone https://github.com/PietraValentina-tech/APSCalculadoraCreditoCarbono.git
    ```
 
 2. Navigate to the project directory:
    ```
-   cd carbon-credit-calculator
+   cd APSCalculadoraCreditoCarbono
    ```
 
 3. Install dependencies:
