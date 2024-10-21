@@ -1,17 +1,24 @@
 import React from 'react';
-import { Typography, Container, Link } from '@mui/material';
+import { Typography, Container, Link, useTheme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 const Footer: React.FC = () => {
   const { t } = useTranslation();
+  const theme = useTheme(); // Hook to access current theme
 
   return (
-    <footer className="bg-gray-200 py-4 mt-8">
+    <footer
+      style={{
+        backgroundColor: theme.palette.background.paper,
+        padding: theme.spacing(3, 0), // Dynamic padding based on theme spacing
+        marginTop: theme.spacing(8),
+      }}
+    >
       <Container maxWidth="lg">
-        <Typography variant="body2" color="text.secondary" align="center">
-          {t('© 2024 Carbon Credit Calculator. All rights reserved.')}
+        <Typography variant="body2" color="textSecondary" align="center">
+          {t('© 2024 CarbonPath. All rights reserved.')}
         </Typography>
-        <Typography variant="body2" color="text.secondary" align="center">
+        <Typography variant="body2" color="textSecondary" align="center">
           <Link color="inherit" href="#">
             {t('Privacy Policy')}
           </Link>

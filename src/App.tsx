@@ -12,6 +12,7 @@ import Articles from './pages/Articles';
 import Calculator from './pages/Calculator';
 import './i18n'; // Import i18n configuration
 
+
 const App: React.FC = () => {
   const [darkMode, setDarkMode] = React.useState(false);
   const { i18n } = useTranslation();

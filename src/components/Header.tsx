@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, IconButton, Switch } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Sun, Moon, Globe } from 'lucide-react';
+import logo from '../assets/logo.png'; // Verifique se este caminho está correto
 
 interface HeaderProps {
   darkMode: boolean;
@@ -15,9 +16,18 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode, changeLanguag
 
   return (
     <AppBar position="static">
-      <Toolbar>
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {/* Exibir a logo */}
+        <img
+          src={logo}
+          alt="Logo"
+          style={{
+            height: '160px', // Ajuste a altura conforme necessário
+            marginRight: '15px', // Espaçamento à direita
+          }}
+        />
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          {t('Carbon Credit Calculator')}
+          {/* O nome do projeto ainda pode ser exibido ao lado do logo, se desejar */}
         </Typography>
         <nav>
           <Button color="inherit" component={Link} to="/">{t('Home')}</Button>
@@ -34,7 +44,9 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode, changeLanguag
           onChange={() => changeLanguage(i18n.language === 'en' ? 'pt' : 'en')}
           color="default"
         />
-        <Globe />
+        <IconButton color="inherit">
+          <Globe />
+        </IconButton>
       </Toolbar>
     </AppBar>
   );
