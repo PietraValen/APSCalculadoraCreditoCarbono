@@ -1,30 +1,38 @@
 import React, { useState } from 'react';
-import { Container, Typography, TextField, Button, Paper, Grid, CircularProgress } from '@mui/material';
+import { Container, Typography, TextField, Button, Paper, Grid, CircularProgress, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import jsPDF from 'jspdf';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 
-// Registro dos componentes do Chart.js
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title);
 
-// Fatores de emissão para cada categoria
-const emissionFactors = {
-  transportation: 0.120, // kg CO₂ por km
-  energy: 0.500, // kg CO₂ por kWh
-  industrial: 0.900, // kg CO₂ por tonelada
-  waste: 0.080, // kg CO₂ por kg de resíduos
-  renewableEnergy: 0.050 // kg CO₂ por % de energia renovável
+interface EmissionFactors {
+  [key: string]: {
+    [key: string]: number;
+  };
+}
+
+const emissionFactors: EmissionFactors = {
+  transportation: {
+    gasoline: 2.31,
+    diesel: 2.68,
+    electric: 0,
+    bus: 0.05,
+    train: 0.03,
+    bicycle: 0,
+  },
+  energy: {
+    coal: 0.937,
+    naturalGas: 0.450,
+    renewable: 0,
+  },
+  industrial: {
+    cement: 0.8,
+    steel: 1.8,
+  },
+  waste: 0.10,
 };
-
 const Calculator: React.FC = () => {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
@@ -34,16 +42,17 @@ const Calculator: React.FC = () => {
     waste: '',
     renewableEnergy: '',
     vehicleType: '',
-    applianceEfficiency: '',
     fuelConsumption: '',
+    distance: '',
+    trips: '',
+    passengers: '',
     electricityUsage: '',
-    recycling: '',
-    composting: '',
+    industryType: '',
   });
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<null | { emissions: number; credits: number }>(null);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [results, setResults] = useState<{ emissions: number; credits: number } | null>(null);
+  const [selectedSector, setSelectedSector] = useState<string>('');
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
       ...prevState,
@@ -51,20 +60,53 @@ const Calculator: React.FC = () => {
     }));
   };
 
+  const handleSectorChange = (e: React.ChangeEvent<{ value: unknown }>) => {
+    setSelectedSector(e.target.value as string);
+  };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    let totalEmissions = 0;
 
     try {
-      const transportationEmissions = parseFloat(formData.transportation) * emissionFactors.transportation;
-      const energyEmissions = parseFloat(formData.energy) * emissionFactors.energy;
-      const industrialEmissions = parseFloat(formData.industrial) * emissionFactors.industrial || 0;
-      const wasteEmissions = parseFloat(formData.waste) * emissionFactors.waste || 0;
-      const renewableEmissions = parseFloat(formData.renewableEnergy) * emissionFactors.renewableEnergy || 0;
+      switch (selectedSector) {
+        case 'transportation': {
+          const { distance, trips, passengers, vehicleType, fuelConsumption } = formData;
+          const distanceValue = parseFloat(distance);
+          const tripsValue = parseInt(trips);
+          const passengersValue = parseInt(passengers);
+          
+          if (vehicleType === 'bus' || vehicleType === 'train') {
+            totalEmissions = emissionFactors.transportation[vehicleType] * distanceValue * tripsValue * passengersValue;
+          } else {
+            const fuelEmissions = emissionFactors.transportation[vehicleType] * parseFloat(fuelConsumption);
+            totalEmissions = fuelEmissions * tripsValue;
+          }
+          break;
+        }
 
-      const totalEmissions = transportationEmissions + energyEmissions + industrialEmissions + wasteEmissions - renewableEmissions;
-      const credits = totalEmissions * 0.8; // Exemplo de cálculo de créditos
+        case 'energy': {
+          const energyEmissions = emissionFactors.energy[formData.electricityUsage] * parseFloat(formData.energy);
+          totalEmissions = energyEmissions;
+          break;
+        }
 
+        case 'industrial': {
+          const industrialEmissions = emissionFactors.industrial[formData.industryType] * parseFloat(formData.industrial);
+          totalEmissions = industrialEmissions;
+          break;
+        }
+
+        case 'waste': {
+          totalEmissions = parseFloat(formData.waste) * emissionFactors.waste;
+          break;
+        }
+
+        default:
+          throw new Error('Setor não selecionado');
+      }
+
+      const credits = totalEmissions * 0.8;
       setResults({ emissions: totalEmissions, credits });
     } catch (error) {
       console.error("Erro ao calcular emissões:", error);
@@ -72,7 +114,6 @@ const Calculator: React.FC = () => {
       setLoading(false);
     }
   };
-
   const generatePDF = () => {
     if (!results) return;
 
@@ -89,25 +130,6 @@ const Calculator: React.FC = () => {
     });
     doc.save('carbon-credit-report.pdf');
   };
-
-  const chartData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    datasets: [
-      {
-        label: t('Carbon Emissions'),
-        data: [650, 590, 800, 810, 560, 550], // Dados de exemplo; substitua conforme necessário
-        borderColor: 'rgb(255, 99, 132)',
-        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-      },
-      {
-        label: t('Carbon Credits'),
-        data: [520, 472, 640, 648, 448, 440], // Dados de exemplo; substitua conforme necessário
-        borderColor: 'rgb(53, 162, 235)',
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-      },
-    ],
-  };
-
   return (
     <Container maxWidth="lg" className="mt-8">
       <Typography variant="h3" component="h1" gutterBottom>
@@ -117,135 +139,193 @@ const Calculator: React.FC = () => {
         <Grid item xs={12} md={6}>
           <Paper elevation={3} className="p-6">
             <form onSubmit={handleSubmit}>
-              <TextField
-                fullWidth
-                label={t('Transportation Emissions (kg CO2)')}
-                name="transportation"
-                type="number"
-                value={formData.transportation}
-                onChange={handleChange}
-                margin="normal"
-                required
-              />
-              <TextField
-                fullWidth
-                label={t('Energy Consumption (kWh)')}
-                name="energy"
-                type="number"
-                value={formData.energy}
-                onChange={handleChange}
-                margin="normal"
-                required
-              />
-              <TextField
-                fullWidth
-                label={t('Industrial Processes (kg CO2)')}
-                name="industrial"
-                type="number"
-                value={formData.industrial}
-                onChange={handleChange}
-                margin="normal"
-              />
-              <TextField
-                fullWidth
-                label={t('Waste (kg)')}
-                name="waste"
-                type="number"
-                value={formData.waste}
-                onChange={handleChange}
-                margin="normal"
-              />
-              <TextField
-                fullWidth
-                label={t('Renewable Energy Usage (%)')}
-                name="renewableEnergy"
-                type="number"
-                value={formData.renewableEnergy}
-                onChange={handleChange}
-                margin="normal"
-              />
-              <TextField
-                fullWidth
-                label={t('Vehicle Type')}
-                name="vehicleType"
-                value={formData.vehicleType}
-                onChange={handleChange}
-                margin="normal"
-              />
-              <TextField
-                fullWidth
-                label={t('Appliance Efficiency Rating')}
-                name="applianceEfficiency"
-                value={formData.applianceEfficiency}
-                onChange={handleChange}
-                margin="normal"
-              />
-              <TextField
-                fullWidth
-                label={t('Monthly Fuel Consumption (L)')}
-                name="fuelConsumption"
-                type="number"
-                value={formData.fuelConsumption}
-                onChange={handleChange}
-                margin="normal"
-              />
-              <TextField
-                fullWidth
-                label={t('Monthly Electricity Usage (kWh)')}
-                name="electricityUsage"
-                type="number"
-                value={formData.electricityUsage}
-                onChange={handleChange}
-                margin="normal"
-              />
-              <TextField
-                fullWidth
-                label={t('Recycling Rate (%)')}
-                name="recycling"
-                type="number"
-                value={formData.recycling}
-                onChange={handleChange}
-                margin="normal"
-              />
-              <TextField
-                fullWidth
-                label={t('Composting Rate (%)')}
-                name="composting"
-                type="number"
-                value={formData.composting}
-                onChange={handleChange}
-                margin="normal"
-              />
-              <Button type="submit" variant="contained" color="primary" className="mt-4" disabled={loading}>
-                {loading ? <CircularProgress size={24} /> : t('Calculate')}
-              </Button>
-            </form>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          {results && (
-            <Paper elevation={3} className="p-6">
-              <Typography variant="h5" gutterBottom>
-                {t('Results')}
-              </Typography>
-              <Typography variant="body1">
-                {t('Monthly Carbon Emissions')}: {results.emissions.toFixed(2)} kg CO2
-              </Typography>
-              <Typography variant="body1">
-                {t('Suggested Carbon Credits')}: {results.credits.toFixed(2)}
-              </Typography>
-              <Button onClick={generatePDF} variant="contained" color="secondary" className="mt-4">
-                {t('Download PDF Report')}
-              </Button>
-              <div className="mt-4">
-                <Line data={chartData} />
-              </div>
-            </Paper>
-          )}
-        </Grid>
-      </Grid>
-    </Container>
-  );
+              <FormControl fullWidth margin="normal" required>
+                <InputLabel>{t('Select Sector')}</InputLabel>
+                <Select value={selectedSector} onChange={handleSectorChange}>
+                  <MenuItem value="transportation">{t('Transportation')}</MenuItem>
+                  <MenuItem value="energy">{t('Energy')}</MenuItem>
+                  <MenuItem value="industrial">{t('Industrial')}</MenuItem>
+                  <MenuItem value="waste">{t('Waste')}</MenuItem>
+                </Select>
+              </FormControl>
+              {selectedSector === 'transportation' && (
+                <>
+                  <TextField
+                    fullWidth
+                    label={t('Fuel Type')}
+                    name="vehicleType"
+                    select
+                    value={formData.vehicleType}
+                    onChange={handleChange}
+                    margin="normal"
+                    required
+                  >
+                    <MenuItem value="gasoline">Gasoline</MenuItem>
+                    <MenuItem value="diesel">Diesel</MenuItem>
+                    <MenuItem value="electric">Electric</MenuItem>
+                    <MenuItem value="bus">Bus</MenuItem>
+                    <MenuItem value="train">Train</MenuItem>
+                    <MenuItem value="bicycle">Bicycle</MenuItem>
+                  </TextField>
+                  {formData.vehicleType !== 'bus' && formData.vehicleType !== 'train' && (
+                    <TextField
+                      fullWidth
+                      label={t('Fuel Consumption (L)')}
+                      name="fuelConsumption"
+                      type="number"
+                      value={formData.fuelConsumption}
+                      onChange={handleChange}
+                      margin="normal"
+                      required={formData.vehicleType === 'gasoline' || formData.vehicleType === 'diesel'}
+                    />
+                  )}
+                  <TextField
+                    fullWidth
+                    label={t('Distance (km)')}
+                    name="distance"
+                    type="number"
+                    value={formData.distance}
+                    onChange={handleChange}
+                    margin="normal"
+                    required
+                  />
+                  <TextField
+                    fullWidth
+                    label={t('Number of Trips')}
+                    name="trips"
+                    type="number"
+                    value={formData.trips}
+                    onChange={handleChange}
+                    margin="normal"
+                    required
+                  />
+                  <TextField
+                    fullWidth
+                    label={t('Number of Passengers')}
+                    name="passengers"
+                    type="number"
+                    value={formData.passengers}
+                    onChange={handleChange}
+                    margin="normal"
+                    required
+                  />
+                </>
+              )}
+              {selectedSector === 'energy' && (
+                <>
+                  <TextField
+                    fullWidth
+                    label={t('Energy Source')}
+                    name="electricityUsage"
+                    select
+                    value={formData.electricityUsage}
+                    onChange={handleChange}
+                    margin="normal"
+                    required
+                  >
+                    <MenuItem value="coal">Coal</MenuItem>
+                    <MenuItem value="naturalGas">Natural Gas</MenuItem>
+                    <MenuItem value="renewable">Renewable</MenuItem>
+                  </TextField>
+                  <TextField
+                    fullWidth
+                    label={t('Energy Consumption (kWh)')}
+                    name="energy"
+                    type="number"
+                    value={formData.energy}
+                    onChange={handleChange}
+                    margin="normal"
+                    required
+                  />
+                </>
+              )}
+
+              {selectedSector === 'industrial' && (
+                <>
+                  <TextField
+                    fullWidth
+                    label={t('Industry Type')}
+                    name="industryType"
+                    select
+                    value={formData.industryType}
+                    onChange={handleChange}
+                    margin="normal"
+                    required
+                  >
+                    <MenuItem value="cement">Cement</MenuItem>
+                    <MenuItem value="steel">Steel</MenuItem>
+                  </TextField>
+                  <TextField
+                    fullWidth
+                    label={t('Production Amount (tonnes)')}
+                    name="industrial"
+                    type="number"
+                    value={formData.industrial}
+                    onChange={handleChange}
+                    margin="normal"
+                    required
+                  />
+                </>
+              )}
+
+              {selectedSector === 'waste' && (
+                <TextField
+                  fullWidth
+                  label={t('Waste Amount (kg)')}
+                  name="waste"
+                  type="number"
+                  value={formData.waste}
+                  onChange={handleChange}
+                  margin="normal"
+                  required
+                />
+              )}
+                  <Button type="submit" variant="contained" color="primary" className="mt-4">
+                    {loading ? <CircularProgress size={24} /> : t('Calculate Emissions')}
+                  </Button>
+      
+                  {results && (
+                    <Paper elevation={3} className="p-4 mt-4">
+                      <Typography variant="h6">{t('Results')}</Typography>
+                      <Typography>{t('Monthly Emissions')}: {results.emissions.toFixed(2)} kg CO2</Typography>
+                      <Typography>{t('Suggested Carbon Credits')}: {results.credits.toFixed(2)}</Typography>
+                      <Button variant="outlined" color="secondary" onClick={generatePDF}>
+                        {t('Download PDF')}
+                      </Button>
+                    </Paper>
+                  )}
+                  {results && (
+                    <div className="mt-4">
+                      <Bar
+                        data={{
+                          labels: ['Monthly Emissions', 'Suggested Carbon Credits'],
+                          datasets: [{
+                            label: 'Values',
+                            data: [results.emissions, results.credits],
+                            backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 206, 86, 0.6)'],
+                          }],
+                        }}
+                        options={{
+                          responsive: true,
+                          plugins: {
+                            legend: {
+                              position: 'top',
+                            },
+                            title: {
+                              display: true,
+                              text: 'Emissions and Credits Overview',
+                            },
+                          },
+                        }}
+                      />
+                    </div>
+                  )}
+                </form>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Container>
+      );
 };
 
 export default Calculator;

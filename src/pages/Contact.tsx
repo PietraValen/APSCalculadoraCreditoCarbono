@@ -27,9 +27,11 @@ const Contact: React.FC = () => {
   };
 
   const teamMembers = [
-    { name: 'John Doe', role: 'Lead Developer', email: 'john@example.com' },
-    { name: 'Jane Smith', role: 'AI Specialist', email: 'jane@example.com' },
-    { name: 'Mike Johnson', role: 'Environmental Scientist', email: 'mike@example.com' },
+    { name: 'Pietra Valentina',  email: 'pievalentinah@gmail.com' },
+    { name: 'Ana Julia',  email: 'anajul.guimaraesalves@gmail.com' },
+    { name: 'Janduy Lima',  email: 'janduylima@gmail.com' },
+    { name: 'Luana Vitoria',  email: 'luhv15380@gmail.com' },
+    { name: 'Maria Eduarda',  email: 'mariaeduarda@gmail.com' },
   ];
 
   return (
@@ -85,7 +87,6 @@ const Contact: React.FC = () => {
             {teamMembers.map((member, index) => (
               <div key={index} className="mb-4">
                 <Typography variant="h6">{member.name}</Typography>
-                <Typography variant="body1">{member.role}</Typography>
                 <Typography variant="body2">{member.email}</Typography>
               </div>
             ))}
