@@ -5,6 +5,7 @@ import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import jsPDF from 'jspdf';
 
+// Registro dos componentes do Chart.js
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -14,6 +15,15 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+
+// Fatores de emissão para cada categoria
+const emissionFactors = {
+  transportation: 0.120, // kg CO₂ por km
+  energy: 0.500, // kg CO₂ por kWh
+  industrial: 0.900, // kg CO₂ por tonelada
+  waste: 0.080, // kg CO₂ por kg de resíduos
+  renewableEnergy: 0.050 // kg CO₂ por % de energia renovável
+};
 
 const Calculator: React.FC = () => {
   const { t } = useTranslation();
@@ -44,12 +54,23 @@ const Calculator: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate AI calculation
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    const emissions = Math.random() * 1000;
-    const credits = emissions * 0.8;
-    setResults({ emissions, credits });
-    setLoading(false);
+
+    try {
+      const transportationEmissions = parseFloat(formData.transportation) * emissionFactors.transportation;
+      const energyEmissions = parseFloat(formData.energy) * emissionFactors.energy;
+      const industrialEmissions = parseFloat(formData.industrial) * emissionFactors.industrial || 0;
+      const wasteEmissions = parseFloat(formData.waste) * emissionFactors.waste || 0;
+      const renewableEmissions = parseFloat(formData.renewableEnergy) * emissionFactors.renewableEnergy || 0;
+
+      const totalEmissions = transportationEmissions + energyEmissions + industrialEmissions + wasteEmissions - renewableEmissions;
+      const credits = totalEmissions * 0.8; // Exemplo de cálculo de créditos
+
+      setResults({ emissions: totalEmissions, credits });
+    } catch (error) {
+      console.error("Erro ao calcular emissões:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const generatePDF = () => {
@@ -74,13 +95,13 @@ const Calculator: React.FC = () => {
     datasets: [
       {
         label: t('Carbon Emissions'),
-        data: [650, 590, 800, 810, 560, 550],
+        data: [650, 590, 800, 810, 560, 550], // Dados de exemplo; substitua conforme necessário
         borderColor: 'rgb(255, 99, 132)',
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
       },
       {
         label: t('Carbon Credits'),
-        data: [520, 472, 640, 648, 448, 440],
+        data: [520, 472, 640, 648, 448, 440], // Dados de exemplo; substitua conforme necessário
         borderColor: 'rgb(53, 162, 235)',
         backgroundColor: 'rgba(53, 162, 235, 0.5)',
       },
