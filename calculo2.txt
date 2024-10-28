@@ -18,13 +18,13 @@ import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title);
-
 interface EmissionFactors {
-  [key: string]: {
-    [key: string]: number;
-  };
-}
-const emissionFactors: EmissionFactors = {
+    [key: string]: {
+      [key: string]: number;
+    };
+  }
+  
+  const emissionFactors: EmissionFactors = {
     transportation: {
       gasoline: 2.31,
       diesel: 2.68,
@@ -32,8 +32,6 @@ const emissionFactors: EmissionFactors = {
       bus: 0.05,
       train: 0.03,
       bicycle: 0,
-      car: 2.31, // Fator para carro
-      airplane: 0.25, // Fator para avião
     },
     energy: {
       coal: 0.937,
@@ -65,18 +63,19 @@ const emissionFactors: EmissionFactors = {
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState<{ emissions: number; credits: number } | null>(null);
     const [selectedSector, setSelectedSector] = useState<string>('');
+  
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
-        const { name, value } = e.target;
-        setFormData(prevState => ({
-          ...prevState,
-          [name]: value,
-        }));
-      };
-    
-      const handleSectorChange = (e: React.ChangeEvent<{ value: unknown }>) => {
-        setSelectedSector(e.target.value as string);
-      };
-      const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+      const { name, value } = e.target;
+      setFormData(prevState => ({
+        ...prevState,
+        [name]: value,
+      }));
+    };
+  
+    const handleSectorChange = (e: React.ChangeEvent<{ value: unknown }>) => {
+      setSelectedSector(e.target.value as string);
+    };
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         let totalEmissions = 0;
@@ -90,11 +89,6 @@ const emissionFactors: EmissionFactors = {
               const passengersValue = parseInt(passengers);
               
               if (vehicleType === 'bus' || vehicleType === 'train') {
-                totalEmissions = emissionFactors.transportation[vehicleType] * distanceValue * tripsValue * passengersValue;
-              } else if (vehicleType === 'car') {
-                const fuelEmissions = emissionFactors.transportation[formData.fuelType] * parseFloat(fuelConsumption);
-                totalEmissions = fuelEmissions * tripsValue;
-              } else if (vehicleType === 'airplane') {
                 totalEmissions = emissionFactors.transportation[vehicleType] * distanceValue * tripsValue * passengersValue;
               } else {
                 const fuelEmissions = emissionFactors.transportation[vehicleType] * parseFloat(fuelConsumption);
@@ -132,6 +126,7 @@ const emissionFactors: EmissionFactors = {
           setLoading(false);
         }
       };
+    
       const generatePDF = () => {
         if (!results) return;
     
@@ -167,7 +162,7 @@ const emissionFactors: EmissionFactors = {
                     </Select>
                   </FormControl>
     
-                  {/* Formulário de Transporte */}
+                                    {/* Formulário de Transporte */}
                   {selectedSector === 'transportation' && (
                     <>
                       <TextField
@@ -186,7 +181,7 @@ const emissionFactors: EmissionFactors = {
                         <MenuItem value="train">{t('Train')}</MenuItem>
                         <MenuItem value="bicycle">{t('Bicycle')}</MenuItem>
                       </TextField>
-    
+
                       <TextField
                         fullWidth
                         label={t('Fuel Type')}
@@ -201,7 +196,7 @@ const emissionFactors: EmissionFactors = {
                         <MenuItem value="diesel">{t('Diesel')}</MenuItem>
                         <MenuItem value="electric">{t('Electric')}</MenuItem>
                       </TextField>
-    
+
                       {formData.fuelType !== 'bus' && formData.fuelType !== 'train' && (
                         <TextField
                           fullWidth
@@ -214,7 +209,7 @@ const emissionFactors: EmissionFactors = {
                           required
                         />
                       )}
-    
+
                       <TextField
                         fullWidth
                         label={t('Distance (km)')}
@@ -247,38 +242,37 @@ const emissionFactors: EmissionFactors = {
                       />
                     </>
                   )}
+                  {/* Formulário de Energia */}
+                  {selectedSector === 'energy' && (
+                    <>
+                      <TextField
+                        fullWidth
+                        label={t('Energy Source')}
+                        name="electricityUsage"
+                        select
+                        value={formData.electricityUsage}
+                        onChange={handleChange}
+                        margin="normal"
+                        required
+                      >
+                        <MenuItem value="coal">{t('Coal')}</MenuItem>
+                        <MenuItem value="naturalGas">{t('Natural Gas')}</MenuItem>
+                        <MenuItem value="renewable">{t('Renewable')}</MenuItem>
+                      </TextField>
+                      <TextField
+                        fullWidth
+                        label={t('Energy Consumption (kWh)')}
+                        name="energy"
+                        type="number"
+                        value={formData.energy}
+                        onChange={handleChange}
+                        margin="normal"
+                        required
+                      />
+                    </>
+                  )}
     
-                                {/* Formulário de Energia */}
-              {selectedSector === 'energy' && (
-                <>
-                  <TextField
-                    fullWidth
-                    label={t('Energy Source')}
-                    name="electricityUsage"
-                    select
-                    value={formData.electricityUsage}
-                    onChange={handleChange}
-                    margin="normal"
-                    required
-                  >
-                    <MenuItem value="coal">{t('Coal')}</MenuItem>
-                    <MenuItem value="naturalGas">{t('Natural Gas')}</MenuItem>
-                    <MenuItem value="renewable">{t('Renewable')}</MenuItem>
-                  </TextField>
-                  <TextField
-                    fullWidth
-                    label={t('Energy Consumption (kWh)')}
-                    name="energy"
-                    type="number"
-                    value={formData.energy}
-                    onChange={handleChange}
-                    margin="normal"
-                    required
-                  />
-                </>
-              )}
-
-              {/* Formulário Industrial */}
+                                {/* Formulário Industrial */}
               {selectedSector === 'industrial' && (
                 <>
                   <TextField
@@ -369,4 +363,6 @@ const emissionFactors: EmissionFactors = {
     </Container>
   );
 };
+
 export default Calculator;
+            
