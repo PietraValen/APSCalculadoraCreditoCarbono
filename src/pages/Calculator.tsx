@@ -61,6 +61,7 @@ const emissionFactors: EmissionFactors = {
       passengers: '',
       electricityUsage: '',
       industryType: '',
+      fuelType: '',
     });
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState<{ emissions: number; credits: number } | null>(null);

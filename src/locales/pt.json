@@ -58,5 +58,12 @@
   "Suggested Carbon Credits": "Créditos de Carbono Sugeridos",
   "Download PDF Report": "Baixar Relatório PDF",
   "Carbon Emissions": "Emissões de Carbono",
-  "Carbon Credits": "Créditos de Carbono"
+  "Carbon Credits": "Créditos de Carbono",
+  "Select Sector": "Selecionar Setor",
+  "Energy Source": "Fonte de Energia",
+  "Fuel Type": "Tipo de Combustível",
+  "Production Amount (tonnes)": "Quantidade de Produção (toneladas)",
+  "Number of Trips": "Número de Viagens",
+  "Distance (km)": "Distância (km)",
+  "Number of Passengers": "Número de Passageiros"
 }
