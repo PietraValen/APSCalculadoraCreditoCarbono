@@ -124,9 +124,10 @@ const emissionFactors: EmissionFactors = {
             default:
               throw new Error(t('Sector not selected'));
           }
-    
-          const credits = totalEmissions * 0.8;
-          setResults({ emissions: totalEmissions, credits });
+          // ༼ つ ◕_◕ ༽つ Debug by DerickGS 
+          const credits = totalEmissions / 1000; //Divide the kg by 1000 to obtain the result in tons, as each carbon credit corresponds to one ton of carbon.
+          setResults({ emissions: totalEmissions, credits }); // Returns the value to the user.
+          // ( ﾉ ﾟｰﾟ)ﾉ
         } catch (error) {
           console.error("Error calculating emissions:", error);
         } finally {
@@ -142,7 +143,7 @@ const emissionFactors: EmissionFactors = {
         doc.setFontSize(12);
         doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 30);
         doc.text(`${t('Monthly Emissions')}: ${results.emissions.toFixed(2)} kg CO2`, 20, 40);
-        doc.text(`${t('Suggested Carbon Credits')}: ${results.credits.toFixed(2)}`, 20, 50);
+        doc.text(`${t('Suggested Carbon Credits')}: ${Math.trunc(results.credits)}`, 20, 50); // Alteração pois só dá para comprar um crédito inteiro.
         doc.text(t('Input Data') + ':', 20, 60);
         Object.entries(formData).forEach(([key, value], index) => {
           doc.text(`${t(key)}: ${value}`, 30, 70 + index * 10);
@@ -185,7 +186,7 @@ const emissionFactors: EmissionFactors = {
                         <MenuItem value="airplane">{t('Airplane')}</MenuItem>
                         <MenuItem value="bus">{t('Bus')}</MenuItem>
                         <MenuItem value="train">{t('Train')}</MenuItem>
-                        <MenuItem value="bicycle">{t('Bicycle')}</MenuItem>
+                        <MenuItem value="bicycle">{t('Motorcycle')}</MenuItem>
                       </TextField>
     
                       <TextField
@@ -334,8 +335,13 @@ const emissionFactors: EmissionFactors = {
           {results && (
             <Paper elevation={3} className="p-4">
               <Typography variant="h6">{t('Results')}</Typography>
-              <Typography>{t('Monthly Emissions')}: {results.emissions.toFixed(2)} kg CO2</Typography>
-              <Typography>{t('Suggested Carbon Credits')}: {results.credits.toFixed(2)}</Typography>
+              <Typography>{t('Monthly Carbon Emissions')}: {results.emissions.toFixed(2)} kg CO2</Typography>
+              <Typography>{t('Suggested Carbon Credits')}: {Math.trunc(results.credits)}</Typography> {/* Alteração pois só dá para comprar um crédito inteiro, é valor não arredonda */}
+
+              {results.credits < 1 && (
+                <Typography >{t('There was not enough emission to buy 1 carbon credit.')}</Typography> 
+              )} {/* Se o valor emitido for menor que uma tonelada, não haverá como comprar um crédito de carbono.*/}
+                
               <Button variant="outlined" color="secondary" onClick={generatePDF}>
                 {t('Download PDF')}
               </Button>

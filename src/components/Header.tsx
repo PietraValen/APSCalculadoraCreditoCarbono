@@ -29,14 +29,16 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode, changeLanguag
     <AppBar position="static" sx={{ backgroundColor: darkMode ? '#303030' : '#22c55e' }}> {/* Verde no modo claro, cinza muito escuro no modo escuro */}
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         {/* Exibir a logo */}
-        <img
-          src={logo}
-          alt="Logo"
-          style={{
-            height: '40px',
-            marginRight: '15px',
-          }}
-        />
+        <Link to="/">
+          <img
+            src={logo}
+            alt="Logo"
+            style={{
+              height: '40px',
+              marginRight: '15px',
+            }}
+          />
+        </Link>
 
         {/* Menu centralizado */}
         {isMobile ? (
