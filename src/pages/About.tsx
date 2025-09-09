@@ -18,16 +18,16 @@ const About: React.FC = () => {
           {t('How Our AI Works')}
         </Typography>
         <Typography variant="body1" paragraph>
-          {t('1. Data Collection: Our system collects vast amounts of data on energy consumption patterns, transportation emissions, industrial processes, and more.')}
+          1. {t('Data Collection: Our system collects vast amounts of data on energy consumption patterns, transportation emissions, industrial processes, and more.')}
         </Typography>
         <Typography variant="body1" paragraph>
-          {t('2. Pattern Recognition: Using neural networks, our AI identifies complex patterns in carbon emission data that might be missed by traditional calculation methods.')}
+          2. {t('Pattern Recognition: Using neural networks, our AI identifies complex patterns in carbon emission data that might be missed by traditional calculation methods.')}
         </Typography>
         <Typography variant="body1" paragraph>
-          {t('3. Predictive Modeling: We employ predictive models that can forecast future emissions based on current trends and user-input data.')}
+          3. {t('Predictive Modeling: We employ predictive models that can forecast future emissions based on current trends and user-input data.')}
         </Typography>
         <Typography variant="body1" paragraph>
-          {t('4. Continuous Learning: Our AI system continuously learns from new data, improving its accuracy over time.')}
+          4. {t('Continuous Learning: Our AI system continuously learns from new data, improving its accuracy over time.')}
         </Typography>
         <Typography variant="h5" component="h2" gutterBottom className="mt-4">
           {t('Environmental Benefits')}
