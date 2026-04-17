@@ -1,281 +1,65 @@
-# Project Documentation Wiki
+# Carbon Credit Calculator
 
-## Table of Contents
+> An interactive web application designed to calculate cross-sector carbon footprints and suggest actionable carbon credit offsets.
 
-1. [Project Overview](#project-overview)
+## Tech Stack
 
-   * [Purpose](#purpose)
-   * [Main Features](#main-features)
-2. [Tech Stack](#tech-stack)
-3. [Project Structure](#project-structure)
-4. [Getting Started](#getting-started)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Material-UI](https://img.shields.io/badge/Material--UI-0081CB?style=for-the-badge&logo=material-ui&logoColor=white)
+![React Router](https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white)
+![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)
 
-   * [Prerequisites](#prerequisites)
-   * [Installation](#installation)
-   * [Running the Project](#running-the-project)
-5. [Available Scripts](#available-scripts)
-6. [Pages and Components](#pages-and-components)
+## Key Features
 
-   * [Components](#components)
-   * [Pages](#pages)
-7. [Internationalization (i18n)](#internationalization-i18n)
-8. [How the Calculator Works](#how-the-calculator-works)
+*   **Multi-Sector Emission Calculation:** Accurately estimates carbon emissions across Transportation, Energy, Industrial, and Waste sectors.
+*   **Dynamic Data Input Forms:** Adaptive user interfaces that display context-specific fields based on the selected emission sector.
+*   **Interactive Data Visualization:** Integrates Chart.js to render responsive bar charts illustrating emission breakdowns and suggested credits.
+*   **Client-Side PDF Reporting:** Generates downloadable, styled PDF summaries of the calculated emissions and input data directly in the browser.
+*   **Internationalization (i18n):** Full bilingual support (English and Portuguese) using `react-i18next` with persistent language preferences.
+*   **Theming Engine:** Supports dynamic light and dark modes via Material-UI's theme provider with local storage persistence.
 
-   * [Emission Factors](#emission-factors)
-   * [Calculation Logic](#calculation-logic)
-9. [PDF Generation](#pdf-generation)
-10. [Contribution](#contribution)
+## Architecture & Design Patterns
 
----
+*   **Component-Based Architecture:** The UI is constructed using modular, reusable React components (e.g., `Header`, `Footer`, separated page views) to ensure maintainability and separation of concerns.
+*   **Single Page Application (SPA):** Utilizes `react-router-dom` for seamless client-side routing, providing a fluid user experience without page reloads.
+*   **State Management:** Leverages React's built-in Hooks (`useState`, `useMemo`, `useEffect`) for localized state management, handling complex form data and global UI configurations (theming and language).
+*   **Strategy-like Pattern for Calculations:** Employs a structured dictionary of emission factors (`emissionFactors`), allowing the application to dynamically apply different calculation logics based on user selection without complex conditional trees.
 
-## 1. Project Overview
+## Getting Started
 
-### Purpose
-
-The **Carbon Credit Calculator** is an open-source web application designed to raise awareness about carbon emissions and empower users to calculate their carbon footprint. The application provides an interactive tool to estimate emissions across various sectors such as transportation, energy consumption, and industrial processes.
-
-In addition to calculation, the tool suggests the number of carbon credits a user would need to purchase to offset their emissions, offering an actionable step toward carbon neutrality.
-
-### Main Features
-
-* **Multi-Sector Emissions Calculation**: Calculates carbon emissions for Transportation, Energy, Industrial, and Waste sectors.
-* **Dynamic Forms**: The UI adapts based on user selections to collect relevant data.
-* **Results Visualization**: Displays results clearly, including total emissions in kg of CO2 and suggested carbon credits.
-* **Interactive Charts**: Uses bar charts to visualize emissions and credits distribution.
-* **PDF Reports**: Generates downloadable PDF reports summarizing calculations and inputs.
-* **Multi-language Support**: Available in Portuguese and English.
-* **Dark/Light Theme**: Includes a theme toggle for better user experience.
-
----
-
-## 2. Tech Stack
-
-This project is built using modern web technologies to ensure a robust, scalable, and maintainable user experience.
-
-* **Frontend Framework**: React (v18.2.0)
-* **Build Tool**: Vite
-* **Language**: TypeScript
-* **Styling**:
-
-  * Tailwind CSS
-  * Material-UI (MUI)
-* **Routing**: React Router DOM (v6)
-* **Internationalization**: i18next with react-i18next
-* **Charts**: Chart.js with react-chartjs-2
-* **PDF Generation**: jsPDF
-* **Linting**: ESLint
-
----
-
-## 3. Project Structure
-
-The source code is organized in a modular structure to promote separation of concerns and scalability.
-
-```
-/
-├── public/
-│   └── (Static assets)
-├── src/
-│   ├── assets/
-│   │   └── (Images, logos, etc.)
-│   ├── components/
-│   │   ├── Header.tsx
-│   │   └── Footer.tsx
-│   ├── locales/
-│   │   ├── en.json
-│   │   └── pt.json
-│   ├── pages/
-│   │   ├── Home.tsx
-│   │   ├── About.tsx
-│   │   ├── Articles.tsx
-│   │   ├── Calculator.tsx
-│   │   └── Contact.tsx
-│   ├── App.tsx
-│   ├── main.tsx
-│   ├── index.css
-│   └── i18n.ts
-├── .gitignore
-├── package.json
-├── README.md
-└── vite.config.ts
-```
-
-* **`public/`**: Contains static assets not processed by Vite.
-* **`src/assets/`**: Stores images and assets imported into components.
-* **`src/components/`**: Reusable React components.
-* **`src/locales/`**: Translation JSON files.
-* **`src/pages/`**: Each `.tsx` file represents a route/page.
-* **`src/App.tsx`**: Root component handling routing and layout.
-* **`src/main.tsx`**: Entry point that renders `App`.
-* **`src/i18n.ts`**: i18next configuration file.
-
----
-
-## 4. Getting Started
+Follow these instructions to set up the project locally.
 
 ### Prerequisites
-
-* Node.js (version 18.x or higher)
-* npm (comes with Node.js)
+*   Node.js (v18.x or later)
+*   npm (Node Package Manager)
 
 ### Installation
 
-1. **Clone the repository:**
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/carbon-credit-calculator.git
+    cd carbon-credit-calculator
+    ```
 
-```sh
-git clone https://github.com/your-username/carbon-credit-calculator.git
-cd carbon-credit-calculator
-```
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-2. **Install dependencies:**
+3.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
 
-```sh
-npm install
-```
+4.  **Access the application:**
+    Open your browser and navigate to `http://localhost:5173`.
 
-### Running the Project
+## Technical Highlights
 
-```sh
-npm run dev
-```
-
-Then open your browser at:
-
-```
-http://localhost:5173
-```
-
----
-
-## 5. Available Scripts
-
-* **`npm run dev`**: Starts development server with HMR.
-* **`npm run build`**: Builds the project for production.
-* **`npm run lint`**: Runs ESLint.
-* **`npm run preview`**: Previews the production build.
-
----
-
-## 6. Pages and Components
-
-### Components
-
-* **Header.tsx**
-
-  * Displays logo and navigation
-  * Language selector
-  * Theme toggle
-
-* **Footer.tsx**
-
-  * Copyright info
-  * Social/contact links
-
-### Pages
-
-* **Home.tsx**: Landing page
-* **About.tsx**: Project description and mission
-* **Articles.tsx**: Blog/articles section
-* **Contact.tsx**: Contact form/info
-* **Calculator.tsx**: Main calculator page
-
----
-
-## 7. Internationalization (i18n)
-
-Uses `i18next`.
-
-### Translation Files
-
-Located in:
-
-```
-src/locales/
-```
-
-### Adding a New Language
-
-1. Create `xx.json`
-2. Add translations
-3. Register in `i18n.ts`
-
-### Usage Example
-
-```tsx
-import { useTranslation } from 'react-i18next';
-
-const { t } = useTranslation();
-
-return <h1>{t('welcomeMessage')}</h1>;
-```
-
----
-
-## 8. How the Calculator Works
-
-### Emission Factors
-
-Predefined values inside `Calculator.tsx`:
-
-```javascript
-
-const emissionFactors = {
-  transportation: {
-    gasoline: 2.31,
-    diesel: 2.68,
-  },
-  energy: {
-    coal: 0.937,
-  },
-};
-
-```
-
-### Calculation Logic
-
-1. User selects sector
-2. Inputs data
-3. System calculates:
-
-```
-Emissions = Input × Emission Factor
-```
-
-4. Conversion:
-
-```
-Carbon Credits = Emissions (kg) / 1000
-```
-
----
-
-## 9. PDF Generation
-
-* Uses `jsPDF`
-* Triggered after calculation
-* Includes:
-
-  * Title and date
-  * Total emissions
-  * Suggested credits
-  * Input data table
----
-
-## 10. Contribution
-
-1. Fork repository
-2. Create branch:
-```sh
-git checkout -b feature/my-feature
-```
-3. Make changes
-4. Run lint:
-```
-npm run lint
-```
-5. Commit changes
-6. Push:
-```sh
-git push origin feature/my-feature
-```
-7. Open Pull Request
+*   **Client-Side Document Generation:** Implemented `jsPDF` to generate comprehensive reports entirely on the client side, eliminating the need for a backend service for document creation and ensuring data privacy.
+*   **Dynamic Theming Integration:** Successfully integrated Tailwind CSS with Material-UI's (`@mui/material`) theming engine, allowing for a cohesive UI that seamlessly transitions between light and dark modes while persisting user preferences via `localStorage`.
+*   **Robust i18n Implementation:** Architected a scalable internationalization setup using `i18next`. Language files are structured modularly, and the selected locale is preserved across sessions, demonstrating a strong understanding of globalized application development.
+*   **Optimized Build Process:** Configured Vite and TypeScript for rapid development and optimized production builds, incorporating strict linting (`ESLint`) to enforce code quality and consistency.
